@@ -37,10 +37,10 @@ public class ArrayAdapter extends BaseAdapter{
         view = inflater.inflate(R.layout.list_item, null);
         final TextView gameName = (TextView)view.findViewById(R.id.gameName);
         final TextView gameBalance = (TextView)view.findViewById(R.id.balance);
-        final TextView gameId = (TextView)view.findViewById(R.id.balance);
+        final TextView gameId = (TextView)view.findViewById(R.id.gameId);
 
         gameName.setText(gameNames.get(i));
-        gameBalance.setText(gameBalances.get(i));
+        gameBalance.setText("$"+gameBalances.get(i));
         gameId.setText(gameIds.get(i).toString());
 
         gameName.setOnClickListener(new View.OnClickListener() {
