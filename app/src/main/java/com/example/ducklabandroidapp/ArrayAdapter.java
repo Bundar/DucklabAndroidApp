@@ -22,45 +22,34 @@ import java.util.ArrayList;
 public class ArrayAdapter extends BaseAdapter{
     Context	context;
     LayoutInflater inflater;
-    Connection con;
-    int userId;
     ArrayList<String> gameNames;
     ArrayList<String> gameBalances;
-    public ArrayAdapter(Context context, Connection con, int userId) {
+    ArrayList<Integer> gameIds;
+    public ArrayAdapter(Context context,ArrayList<Integer> gameIds, ArrayList<String> gameNames, ArrayList<String> gameBalances) {
         this.context = context;
-        this.con = con;
-        this.userId = userId;
+        this.gameNames = gameNames;
+        this.gameBalances = gameBalances;
+        this.gameIds = gameIds;
         inflater = (LayoutInflater.from(context));
-        //get from sql db
-        String query1 = "select g.gameName and gu.availableBalance from GameUser gu" +
-                        "inner join Game g on gu.gameId = g.gameId"+
-                        "where gu.userId = "+userId;
-        try{
-            Statement stat = con.createStatement();
-            ResultSet rs = stat.executeQuery(query1);
-            gameNames = (ArrayList)rs.getArray("gameName");
-            gameBalances = (ArrayList)rs.getArray("availableBalance");
-        }
-        catch(Exception e){
-            Log.e("Error in Adapter: ", e.getMessage());
-        }
     }
     @Override
     public View getView(int i, View view, ViewGroup vg){
         view = inflater.inflate(R.layout.list_item, null);
         final TextView gameName = (TextView)view.findViewById(R.id.gameName);
         final TextView gameBalance = (TextView)view.findViewById(R.id.balance);
+        final TextView gameId = (TextView)view.findViewById(R.id.balance);
 
         gameName.setText(gameNames.get(i));
         gameBalance.setText(gameBalances.get(i));
+        gameId.setText(gameIds.get(i).toString());
 
         gameName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String selected = (String)gameName.getText();
+                String selected = (String)gameId.getText();
                 Intent myIntent = new Intent(context, GameActivity.class);
                 Bundle b = new Bundle();
-                b.putString("name",selected);
+                b.putString("gameId",selected);
                 myIntent.putExtras(b);
                 context.startActivity(myIntent);
             }

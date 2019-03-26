@@ -8,6 +8,7 @@
 
     <TextView
         android:id="@+id/gameName"
+
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -15,7 +16,17 @@
         android:text="gamename"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/gameId"
+        android:visibility="gone"
+        android:text=""
+        android:layout_width="304dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="left"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
 
+        />
     <TextView
         android:id="@+id/balance"
         android:layout_width="wrap_content"

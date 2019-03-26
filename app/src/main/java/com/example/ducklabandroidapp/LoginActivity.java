@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -22,65 +23,52 @@ public class LoginActivity extends AppCompatActivity {
     Button signInButton;
 
     Connection con;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        email = (EditText)findViewById(R.id.email);
-        password = (EditText)findViewById(R.id.password);
+        email = (EditText) findViewById(R.id.email);
+        password = (EditText) findViewById(R.id.password);
         signInButton = (Button) findViewById(R.id.signin);
 
-        con = connectionclass();
+        ConnectionHelper connectionHelper = new ConnectionHelper();
+        con = connectionHelper.connectionclass();
+
         onButtonPress();
 
+
+
     }
-    public void onButtonPress(){
+
+    public void onButtonPress() {
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String emailEntered = email.getText().toString();
                 String passwordEntered = password.getText().toString();
                 //check db
-                String query = "select password from User where email = "+emailEntered+" and password = "+ passwordEntered;
-                try{
+                Log.d("email=", emailEntered);
+                Log.d("password=", passwordEntered);
+                String query = "select password from [User] where email = '" + emailEntered + "' and password = '" + passwordEntered + "'";
+                try {
                     Statement stat = con.createStatement();
                     ResultSet rs = stat.executeQuery(query);
-                    if(rs.next()){
+                    if (rs.next()) {
                         //LOGIN SUCCESSFUL
-                        startActivity(new Intent(LoginActivity.this, UserProfile.class));
-                    }
-                    else{
+                        Intent intent = new Intent(LoginActivity.this, UserProfile.class);
+                        intent.putExtra("email", emailEntered);
+                        startActivity(intent);
+                    } else {
                         //User does not exist or wrong info
+                        Toast.makeText(getApplicationContext(),"User Credentials Are Incorrect. Try Again.", Toast.LENGTH_LONG).show();
                     }
-                }
-                catch (Exception e){
-                    Log.e("Error Logging in: ", e.getMessage());
+                } catch (Exception e) {
+                    Log.e("Error Logging in", e.getMessage());
                 }
 
             }
         });
     }
-
-    public Connection connectionclass(){
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-        Connection connection = null;
-        String connectionURL = "jdbc:jtds:sqlserver://ducklabdata.database.windows.net:1433;DatabaseName=ducklabdb;user=ducklab@ducklabdata;password={Hiss4212};encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;";
-        try{
-            Class.forName("net.sourceforge.jtds.jdbc.Driver");
-            connection = DriverManager.getConnection(connectionURL);
-        }
-        catch (SQLException e){
-            Log.e("Error connection 1: ", e.getMessage());
-        }
-        catch (ClassNotFoundException e){
-            Log.e("Error connection 2: ", e.getMessage());
-        }
-        catch (Exception e){
-            Log.e("Error connection 3: ", e.getMessage());
-        }
-        return connection;
-    }
 }
-
