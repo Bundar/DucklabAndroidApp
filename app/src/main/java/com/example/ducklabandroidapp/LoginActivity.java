@@ -57,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
                     ResultSet rs = stat.executeQuery(query);
                     if (rs.next()) {
                         //LOGIN SUCCESSFUL
-                        Intent intent = new Intent(LoginActivity.this, UserProfile.class);
+                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         intent.putExtra("email", emailEntered);
                         startActivity(intent);
                     } else {

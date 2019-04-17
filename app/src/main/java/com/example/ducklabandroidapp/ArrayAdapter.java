@@ -47,11 +47,11 @@ public class ArrayAdapter extends BaseAdapter{
             @Override
             public void onClick(View v) {
                 String selected = (String)gameId.getText();
-                Intent myIntent = new Intent(context, GameActivity.class);
+                //Intent myIntent = new Intent(context, GameActivity.class);
                 Bundle b = new Bundle();
                 b.putString("gameId",selected);
-                myIntent.putExtras(b);
-                context.startActivity(myIntent);
+                //myIntent.putExtras(b);
+                //context.startActivity(myIntent);
             }
         });
         return view;
