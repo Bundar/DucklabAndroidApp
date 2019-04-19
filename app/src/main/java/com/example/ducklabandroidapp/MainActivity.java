@@ -2,6 +2,7 @@ package com.example.ducklabandroidapp;
 
 import android.content.Intent;
 import android.os.StrictMode;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     String profileEmail = "";
     Integer userId = null;
 
+    private DatabaseHelper db;
     private BottomNavigationView mainNav;
     private FrameLayout mainFrame;
     private HomeFragment homeFragment;
@@ -37,25 +39,34 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-        ConnectionHelper connectionHelper = new ConnectionHelper();
-        con = connectionHelper.connectionclass();
+        Bundle extras = getIntent().getExtras();
+        db = new DatabaseHelper();
+        if (extras != null) {
+            profileEmail = extras.getString("email");
+            userId = db.getUserId(profileEmail);
+        }
 
-        //userNameDisplay = (TextView)findViewById(R.id.username);
-        //firstNameLastNameDisplay = (TextView)findViewById(R.id.firstnameLastname);
-        //gamesListView = (ListView)findViewById(R.id.gamesList);
         mainFrame = (FrameLayout)findViewById(R.id.mainFrame);
         mainNav = (BottomNavigationView)findViewById(R.id.bottomNavigationView);
 
+        db = new DatabaseHelper();
+
+        Bundle b = new Bundle();
+        b.putString("profileEmail", profileEmail);
         homeFragment = new HomeFragment();
+        homeFragment.setArguments(b);
         gamesFragment = new GamesFragment();
         marketFragment = new MarketFragment();
+
+        if(savedInstanceState == null){
+            setFragment(homeFragment);
+        }
 
         mainNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 switch (menuItem.getItemId()){
                     case R.id.nav_home:
-                        mainNav.setItemBackgroundResource(R.color.colorPrimary);
                         setFragment(homeFragment);
                         return true;
                     case R.id.nav_market:
@@ -71,15 +82,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            profileEmail = extras.getString("email");
-        }
-        Log.d("PROFILE EMAIL" , profileEmail);
-        //setUserNameDisplay(profileEmail);
-        userId = getUserId(profileEmail);
-        //populateList();
     }
 
     private void setFragment(Fragment fragment) {
@@ -88,24 +90,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
-    public int getUserId(String email){
-        String query = "select userID from [User] where email = '"+email+"'";
-        Integer userId = -1;
-        try{
-            Statement stat = con.createStatement();
-            ResultSet rs = stat.executeQuery(query);
-            if(rs.next()){
-                userId = rs.getInt("userID");
-            }
-        }
-        catch(Exception e){
-            Log.e("Error getting user id", e.getMessage());
-        }
-        if(userId == -1){
-            Log.d("error","Error getting user id, userId = -1");
-        }
-        return userId;
-    }
+
 //    public void populateList(){
 //
 //        //get from sql db
