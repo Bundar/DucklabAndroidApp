@@ -1,6 +1,8 @@
 package com.example.ducklabandroidapp;
 
-class UserLeaderBoard {
+import android.support.annotation.NonNull;
+
+public class UserLeaderBoard implements Comparable<UserLeaderBoard>{
     private String username;
     private double balance;
     private int placing;
@@ -22,5 +24,21 @@ class UserLeaderBoard {
 
     public int getPlacing() {
         return placing;
+    }
+
+    public void addToBalance(Double addMe){balance += addMe;}
+
+    @Override
+    public int compareTo(@NonNull UserLeaderBoard userLeaderBoard) {
+        if(userLeaderBoard.getBalance() == this.balance){
+            return 0;
+        }else if(userLeaderBoard.getBalance() > this.balance){
+            return 1;
+        }
+        return -1;
+    }
+
+    public void setPlacing(int place) {
+        this.placing = place;
     }
 }

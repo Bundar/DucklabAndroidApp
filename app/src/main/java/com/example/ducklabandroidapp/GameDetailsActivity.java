@@ -31,6 +31,7 @@ public class GameDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_details);
         db = new DatabaseHelper();
+
         joinGameButton = findViewById(R.id.joinButton);
         gameTypeTV = findViewById(R.id.gameType);
         gameNameTV = findViewById(R.id.gameName);

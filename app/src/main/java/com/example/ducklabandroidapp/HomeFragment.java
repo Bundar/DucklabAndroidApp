@@ -20,10 +20,13 @@ import java.util.ArrayList;
  * A simple {@link Fragment} subclass.
  */
 public class HomeFragment extends Fragment {
+    private static final String TAG = "HomeFragment";
     TextView username;
     TextView firstNameLastName;
     RecyclerView gamesList;
     DatabaseHelper db;
+    ArrayList<Game> games;
+    int userId;
     public HomeFragment() {
         // Required empty public constructor
     }
@@ -44,15 +47,16 @@ public class HomeFragment extends Fragment {
 
         String email = getArguments().getString("profileEmail");
         String userName = db.getUserName(email);
-        int userId = db.getUserId(email);
+        userId = db.getUserId(email);
         String firstName = db.getFirstName(userId);
         String lastName = db.getLastName(userId);
-        ArrayList<Game> games = new ArrayList<Game>();
+        games = new ArrayList<Game>();
+        Log.d(TAG, "onCreateView: userId = "+ userId);
         games = db.getGamesForUser(userId);
         username.setText(userName);
         firstNameLastName.setText(firstName+" "+lastName);
         for(Game g: games){
-            Log.d("games",g.getGameName());
+            g.setBalance(g.getBalance()+db.getMyGameBalance(userId,g.getGameId()));
         }
         populateList(games);
         return v;
