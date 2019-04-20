@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
         homeFragment = new HomeFragment();
         homeFragment.setArguments(b);
         gamesFragment = new GamesFragment();
+        gamesFragment.setArguments(b);
         marketFragment = new MarketFragment();
 
         if(savedInstanceState == null){

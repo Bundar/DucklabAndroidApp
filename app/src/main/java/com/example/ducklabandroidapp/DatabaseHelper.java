@@ -1,16 +1,15 @@
 package com.example.ducklabandroidapp;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
 public class DatabaseHelper {
-
+    private static final String TAG = "DatabaseHelper";
     private Connection connection;
     private ConnectionHelper connectionHelper;
 
@@ -102,6 +101,25 @@ public class DatabaseHelper {
         }
         if(email == null){
             Log.d("error","Error getting username data, email == null");
+        }
+        return username;
+    }
+    //returns username from email
+    public String getUserName(Integer userId){
+        String query = "select [username] from [User] where userId = '"+userId+"'";
+        String username = "";
+        try{
+            Statement stat = connection.createStatement();
+            ResultSet rs = stat.executeQuery(query);
+            if(rs.next()) {
+                username = rs.getString("username");
+            }
+        }
+        catch(Exception e){
+            Log.e("Error getting user data", e.getMessage());
+        }
+        if(userId == null){
+            Log.d("error","Error getting username data, userId == null");
         }
         return username;
     }
@@ -217,5 +235,72 @@ public class DatabaseHelper {
             Log.d("error","Error getting price");
         }
         return price;
+    }
+
+    //return all games
+    public ArrayList<Game> getAllGames(){
+        ArrayList<Game> games = new ArrayList<Game>();
+        String query = "select * from [Game]";
+        try{
+            Statement stat = connection.createStatement();
+            ResultSet rs = stat.executeQuery(query);
+            while(rs.next()){
+                //public Game(int gameId, String gameType, String gameName, int adminUID,
+                // String gameStatus, double startingBalance, String endDate, double profitGoal)
+                Game g = new Game(rs.getInt("gameId"), rs.getString("gameType"), rs.getString("gameName"), rs.getInt("adminId")
+                , rs.getString("gameStatus"), rs.getDouble("startingBalance"), rs.getString("endDate"), rs.getDouble("profitGoal"));
+                games.add(g);
+            }
+        }
+        catch(Exception e){
+            Log.e("Error getting user game", e.getMessage());
+        }
+        if(games.size() == 0){
+            Log.d(TAG,"Error getting companies, companies found=0");
+        }
+        return games;
+    }
+
+    public ArrayList<UserLeaderBoard> getLeaderBoard(int gameId) {
+        ArrayList<UserLeaderBoard> leaderBoard = new ArrayList<>();
+
+        String query = "select * from [GameUser] where gameId ="+gameId+" order by availableBalance desc";
+        try{
+            Statement stat = connection.createStatement();
+            ResultSet rs = stat.executeQuery(query);
+            int i = 1;
+            while(rs.next()){
+                leaderBoard.add(new UserLeaderBoard(getUserName(rs.getInt("userId")), rs.getDouble("availableBalance"), i));
+                i++;
+            }
+        }catch(Exception e){
+            Log.e(TAG, "getLeaderBoard: ", e);
+        }
+        return leaderBoard;
+    }
+
+    public void addUserToGame(Integer userId, Integer gameId, Double startingBalance) {
+        String stat = "insert into [GameUser] ([gameId],[userId],[availableBalance]) values (" + gameId + ", " + userId + ", '" + startingBalance + "')";
+        try{
+            Statement statement = connection.createStatement();
+            int row = statement.executeUpdate(stat);
+        }catch(Exception e){
+            Log.e(TAG, "addUserToGame: ", e);
+        }
+    }
+
+    public boolean userIsInGame(Integer userId, Integer gameId) {
+        String query = "select * from [GameUser] where gameId = "+gameId+" and userId ="+userId;
+        boolean userInGame = false;
+        try{
+            Statement stat = connection.createStatement();
+            ResultSet rs = stat.executeQuery(query);
+            if(rs.next()){
+               userInGame = true;
+            }
+        }catch(Exception e){
+            Log.e(TAG, "userIsInGame: ", e);
+        }
+        return userInGame;
     }
 }

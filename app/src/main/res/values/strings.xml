@@ -24,5 +24,10 @@
     <string name="title">Welcome to Ducklab Investments!</string>
     <string name="registerString" />
     <string name="registerString1">Register</string>
+    <string name="gmaeDetailsTitleString">Game Details:</string>
+    <string name="gameLeaderboardTitle">Leaderboard:</string>
+    <string name="joinGameString">Join Game</string>
+    <string name="gameTypeString">Game Type:</string>
+    <string name="startbalancestring">Starting Balance:</string>
 
 </resources>
