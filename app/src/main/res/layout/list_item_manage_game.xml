@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parent"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/companyName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp"
+        android:text="TextView"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintEnd_toStartOf="@+id/price"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/companySymbol"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="TextView"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:layout_constraintEnd_toEndOf="@+id/companyName"
+        app:layout_constraintStart_toStartOf="@+id/companyName"
+        app:layout_constraintTop_toBottomOf="@+id/companyName" />
+
+    <ImageButton
+        android:id="@+id/lessButton"
+        style="@style/Widget.AppCompat.ImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:backgroundTint="@color/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="@+id/quantity"
+        app:layout_constraintStart_toEndOf="@+id/sellButton"
+        app:layout_constraintTop_toTopOf="@+id/quantity"
+        app:srcCompat="@drawable/ic_down" />
+
+    <EditText
+        android:id="@+id/quantity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/rounded_edittext"
+        android:text="13"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/moreButton"
+        app:layout_constraintHorizontal_bias="0.489"
+        app:layout_constraintStart_toEndOf="@+id/lessButton"
+        app:layout_constraintTop_toBottomOf="@+id/companySymbol"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <ImageButton
+        android:id="@+id/moreButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="40dp"
+        android:backgroundTint="@color/colorPrimary"
+        app:layout_constraintBottom_toBottomOf="@+id/quantity"
+        app:layout_constraintEnd_toStartOf="@+id/buyButton"
+        app:layout_constraintTop_toTopOf="@+id/quantity"
+        app:srcCompat="@drawable/ic_up" />
+
+    <Button
+        android:id="@+id/buyButton"
+        android:layout_width="65dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@android:color/holo_red_light"
+        android:text="Buy"
+        app:layout_constraintBottom_toBottomOf="@+id/moreButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/moreButton" />
+
+    <Button
+        android:id="@+id/sellButton"
+        android:layout_width="65dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/rounded_button"
+        android:backgroundTint="@android:color/holo_green_light"
+        android:text="Sell"
+        app:layout_constraintBottom_toBottomOf="@+id/lessButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/lessButton" />
+
+    <TextView
+        android:id="@+id/price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="TextView"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textColor="@android:color/holo_green_light"
+        app:layout_constraintBottom_toBottomOf="@+id/companySymbol"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/companyName" />
+
+</android.support.constraint.ConstraintLayout>

@@ -9,6 +9,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import javax.security.auth.login.LoginException;
+
 public class DatabaseHelper {
     private static final String TAG = "DatabaseHelper";
     private Connection connection;
@@ -189,7 +191,7 @@ public class DatabaseHelper {
     }
     public ArrayList<Company> searchCompany(String partialCompanyName){
         ArrayList<Company> companies = new ArrayList<Company>();
-        String query = "select * from [Company] where companyName like '%"+partialCompanyName+"%'";
+        String query = "select * from [Company] where companyName like '%"+partialCompanyName+"%' or companySymbol like '%"+partialCompanyName+"%'";
         try{
             Statement stat = connection.createStatement();
             ResultSet rs = stat.executeQuery(query);
@@ -270,10 +272,15 @@ public class DatabaseHelper {
             Statement stat = connection.createStatement();
             ResultSet rs = stat.executeQuery(query);
             while(rs.next()){
-                //public Game(int gameId, String gameType, String gameName, int adminUID,
-                // String gameStatus, double startingBalance, String endDate, double profitGoal)
-                Game g = new Game(rs.getInt("gameId"), rs.getString("gameType"), rs.getString("gameName"), rs.getInt("adminId")
-                , rs.getString("gameStatus"), rs.getDouble("startingBalance"), rs.getString("endDate"), rs.getDouble("profitGoal"));
+                int gameId = rs.getInt("gameId");
+                String gameType = rs.getString("gameType");
+                String gameName = rs.getString("gameName");
+                int adminUID = rs.getInt("adminId");
+                String gameStatus = rs.getString("gameStatus");
+                double startingBalance = rs.getDouble("startingBalance");
+                String endDate = rs.getString("endDate");
+                double profitGoal = rs.getDouble("profitGoal");
+                Game g = new Game(gameId, gameType, gameName, adminUID, gameStatus, startingBalance, endDate, profitGoal);
                 games.add(g);
             }
         }
@@ -329,7 +336,7 @@ public class DatabaseHelper {
         }
         return leaderBoard;
     }
-    public Double getMyGameBalance(int userId, int gameId){
+    public Double getMyGamePortfolioValue(int userId, int gameId){
         double totalBalance = 0.0;
         Log.d(TAG, "getMyGameBalance: uid="+userId+" gameId="+gameId);
         try {
@@ -337,24 +344,27 @@ public class DatabaseHelper {
             Statement stat = connection.createStatement();
             ResultSet rs = stat.executeQuery(query);
             if(rs.next()) {
-                totalBalance = rs.getDouble("availableBalance");
+                //totalBalance = rs.getDouble("availableBalance");
                 Log.d(TAG, "getMyGameBalance: total balance init fot gameid ="+gameId+" is :"+totalBalance);
                 String query2 = "select * from [UserStock] where gameId = "+gameId+" and userId = "+userId;
                 Statement stat2 = connection.createStatement();
                 ResultSet rs2 = stat2.executeQuery(query2);
                 while (rs2.next()){
-                    String query3 = "select * from [CompanyStock] where companyId = " + rs2.getInt("companyId") + " order by stockTime desc";
+                    String query3 = "select top (1) * from [CompanyStock] where companyId = " + rs2.getInt("companyId") + " order by stockTime desc";
                     Statement stat3 = connection.createStatement();
                     ResultSet rs3 = stat3.executeQuery(query3);
-                    rs3.next();
-                    Double currentPrice = rs3.getDouble("stockPrice");
-                    totalBalance=totalBalance+(currentPrice * rs2.getInt("quantityPurchased"));
+                    if(rs3.next()) {
+                        Double currentPrice = rs3.getDouble("stockPrice");
+                        totalBalance = totalBalance + (currentPrice * rs2.getInt("quantityPurchased"));
+                        Log.d(TAG, "getMyGameBalance:userId = "+userId+" total balance = " + totalBalance);
+                    }
                 }
             }
 
         }catch (Exception e){
             Log.e(TAG, "getMyGameBalance: ", e);
         }
+        Log.d(TAG, "getMyGameBalance: total balance = "+totalBalance);
         return totalBalance;
     }
     public void addUserToGame(Integer userId, Integer gameId, Double startingBalance) {
@@ -380,5 +390,86 @@ public class DatabaseHelper {
             Log.e(TAG, "userIsInGame: ", e);
         }
         return userInGame;
+    }
+
+    public int getStockQuantityOwned(int userId, int gameId, int companyId) {
+        String query = "select quantityPurchased from [UserStock] where userId = "+userId+" and gameId = "+gameId+" and companyId = "+companyId;
+        int count = 0;
+        try{
+            Statement stat = connection.createStatement();
+            ResultSet rs = stat.executeQuery(query);
+            while(rs.next()){
+                count += rs.getInt("quantityPurchased");
+            }
+        }catch(Exception e){
+            Log.e(TAG, "getStockQuantityOwned: ", e);
+        }
+        Log.d(TAG, "getStockQuantityOwned: userId = "+userId+" count="+count);
+        return count;
+    }
+
+    public void buyStock(int companyId, int userId, int gameId,int quant) {
+        String query = "insert into [UserStock] (userId, gameId, companyId, timePurchased, quantityPurchased) values ("+userId+", "+gameId+", "+companyId+", NULL, "+quant+")";
+        try{
+            Statement stat = connection.createStatement();
+            Double stockPrice = getStockPrice(companyId);
+            Double moneySpent = stockPrice*quant;
+            String query2 = "update [GameUser] set availableBalance = "+(getMyGameAvailableBalance(userId, gameId)-moneySpent)+" where userId = "+userId+" and gameId = "+gameId;
+            Statement stat2 = connection.createStatement();
+            int row = stat.executeUpdate(query);
+            int row2 = stat.executeUpdate(query2);
+            Log.d(TAG, "buyStock: row="+row+" quantity = "+quant+" comp="+companyId+" bought");
+        }catch (Exception e){
+            Log.e(TAG, "buyStock: ", e);
+        }
+        cleanUserStock(userId, gameId, companyId);
+    }
+
+    private void cleanUserStock(int userId, int gameId, int companyId) {
+        //select userId, gameId, companyId, sum(quantityPurchased)
+        // from [UserStock] where userId =3 and gameId = 10 and companyId =1
+        // group by userId, gameId, companyId
+
+        //...SAVE RESULT in <saved data>
+        //...DELETE ALL USERSTOCKS
+        //delete from [UserStock] where userId =3 and gameId = 10 and companyId =1
+
+        //insert into [UserStock] (userId, gameId, companyId, timePurchased, quantityPurchased)
+        // <saved data>
+    }
+
+    public double getMyGameAvailableBalance(int userId, int gameId) {
+        String query = "select availableBalance from [GameUser] where userId = "+userId +" and gameId = "+gameId;
+        Double availableBalance = 0.0;
+        try{
+            Statement stat = connection.createStatement();
+            ResultSet rs = stat.executeQuery(query);
+            if(rs.next()){
+                availableBalance = rs.getDouble("availablebalance");
+            }
+        }catch(Exception e){
+            Log.e(TAG, "getMyGameAvailableBalance: ", e);
+        }
+        return availableBalance;
+    }
+
+    public void sellStock(int companyId, int userId, int gameId, int quant) {
+        //ERRER when selling stock for the second time
+        String query = "update [UserStock] set quantityPurchased = "+(getStockQuantityOwned(userId, gameId, companyId)-quant)+" where userStockId = (select top (1) userStockId from [UserStock] where userId = "+userId+" and gameId = "+gameId+" and companyId = "+companyId+") ";
+        try{
+            Statement stat = connection.createStatement();
+            int row = stat.executeUpdate(query);
+            Log.d(TAG, "sellStock: row="+row+" quantity = "+quant+" comp="+companyId+" sold");
+            String query2 = "update [GameUser] set availableBalance = "+(getMyGameAvailableBalance(userId, gameId)+quant*getStockPrice(companyId))+" where userId = "+userId+" and gameId = "+gameId;
+            stat.executeUpdate(query2);
+        }catch (Exception e){
+            Log.e(TAG, "sellStock: ", e);
+        }
+    }
+    public void createGame(String gameType, String gameName, int adminId, String gameStatus, Double startingBalance, String endDate, Double profitGoal){
+        //create game
+    }
+    public ArrayList<StockOwned> getUsersStockInGame(int userId, int gameId){
+        //return list of stocks owned by user
     }
 }

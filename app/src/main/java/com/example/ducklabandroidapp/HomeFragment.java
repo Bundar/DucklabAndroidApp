@@ -56,7 +56,7 @@ public class HomeFragment extends Fragment {
         username.setText(userName);
         firstNameLastName.setText(firstName+" "+lastName);
         for(Game g: games){
-            g.setBalance(g.getBalance()+db.getMyGameBalance(userId,g.getGameId()));
+            g.setBalance(db.getMyGameAvailableBalance(userId,g.getGameId())+db.getMyGamePortfolioValue(userId, g.getGameId()));
         }
         populateList(games);
         return v;
@@ -65,7 +65,7 @@ public class HomeFragment extends Fragment {
     private void populateList(ArrayList<Game> games) {
         gamesList.setLayoutManager(new LinearLayoutManager(getContext()));
         gamesList.setHasFixedSize(true);
-        UsersGamesAdapter usersGamesAdapter = new UsersGamesAdapter(games);
+        UsersGamesAdapter usersGamesAdapter = new UsersGamesAdapter(games, userId);
         gamesList.setAdapter(usersGamesAdapter);
     }
 }

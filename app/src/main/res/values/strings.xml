@@ -30,5 +30,6 @@
     <string name="gameTypeString">Game Type:</string>
     <string name="startbalancestring">Starting Balance:</string>
     <string name="ManageButtonString">Manage</string>
+    <string name="manageGameString">Manage Game:</string>
 
 </resources>
