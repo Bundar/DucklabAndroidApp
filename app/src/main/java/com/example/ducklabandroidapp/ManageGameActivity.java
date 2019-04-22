@@ -1,5 +1,6 @@
 package com.example.ducklabandroidapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.provider.ContactsContract;
@@ -71,6 +72,10 @@ public class ManageGameActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //start view stocks activity...
+                Intent intent = new Intent(v.getContext().getApplicationContext(), ViewMyStocksInGameActivity.class);
+                intent.putExtra("gameId", gameId);
+                intent.putExtra("userId", userId);
+                v.getContext().startActivity(intent);
             }
         });
     }

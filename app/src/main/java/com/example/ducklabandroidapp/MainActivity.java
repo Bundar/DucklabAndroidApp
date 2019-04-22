@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         if(savedInstanceState == null){
             setFragment(homeFragment);
         }
+        mainNav.setSelectedItemId(R.id.nav_home);
 
         mainNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void setFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();

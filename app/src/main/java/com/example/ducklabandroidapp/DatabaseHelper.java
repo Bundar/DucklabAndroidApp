@@ -426,16 +426,24 @@ public class DatabaseHelper {
     }
 
     private void cleanUserStock(int userId, int gameId, int companyId) {
-        //select userId, gameId, companyId, sum(quantityPurchased)
-        // from [UserStock] where userId =3 and gameId = 10 and companyId =1
-        // group by userId, gameId, companyId
+        String query1 = "select userId, gameId, companyId, sum(quantityPurchased) as quantityPurchased from [UserStock] where userId ="+userId+" and gameId = "+gameId+" and companyId ="+companyId+" group by userId, gameId, companyId";
+        try{
+            Statement stat = connection.createStatement();
+            ResultSet rs = stat.executeQuery(query1);
+            if(rs.next()){
+                Log.d(TAG, "cleanUserStock: quantity summed");
+                int totalQuantity = rs.getInt("quantityPurchased");
+                String query2 = "delete from [UserStock] where userId ="+userId+" and gameId = "+gameId+" and companyId ="+companyId;
+                int row1 = stat.executeUpdate(query2);
+                Log.d(TAG, "cleanUserStock: row1="+row1);
+                String query3 = "insert into [UserStock] (userId, gameId, companyId, timePurchased, quantityPurchased) values ("+userId+","+gameId+","+companyId+", NULL,"+totalQuantity+")";
+                int row2 = stat.executeUpdate(query3);
+                Log.d(TAG, "cleanUserStock: row2="+row2);
+            }
 
-        //...SAVE RESULT in <saved data>
-        //...DELETE ALL USERSTOCKS
-        //delete from [UserStock] where userId =3 and gameId = 10 and companyId =1
-
-        //insert into [UserStock] (userId, gameId, companyId, timePurchased, quantityPurchased)
-        // <saved data>
+        }catch(Exception e){
+            Log.e(TAG, "cleanUserStock: ", e);
+        }
     }
 
     public double getMyGameAvailableBalance(int userId, int gameId) {
@@ -465,11 +473,62 @@ public class DatabaseHelper {
         }catch (Exception e){
             Log.e(TAG, "sellStock: ", e);
         }
+        cleanUserStock(userId, gameId, companyId);
     }
     public void createGame(String gameType, String gameName, int adminId, String gameStatus, Double startingBalance, String endDate, Double profitGoal){
         //create game
+        String query = "insert into [Game] (gameType, gameName, adminId, gameStatus, startingBalance, endDate, profitGoal) values ('"+gameType+"','"+gameName+"',"+adminId+",'"+gameStatus+"',"+startingBalance+",'"+endDate+"',"+profitGoal+")";
+        try{
+            Statement stat = connection.createStatement();
+            int row = stat.executeUpdate(query);
+            Log.d(TAG, "createGame: gamemade row="+row);
+        }catch (Exception e){
+            Log.e(TAG, "createGame: ", e);
+        }
     }
     public ArrayList<StockOwned> getUsersStockInGame(int userId, int gameId){
         //return list of stocks owned by user
+        ArrayList<StockOwned> myStocks = new ArrayList<StockOwned>();
+        String query = "select * from [UserStock] where userId ="+userId+" and gameId="+gameId;
+        try{
+            Statement stat = connection.createStatement();
+            ResultSet rs = stat.executeQuery(query);
+            while(rs.next()){
+                myStocks.add(new StockOwned(new Company(rs.getInt("companyId"), getCompanyName(rs.getInt("companyId")), getCompanySymbol(rs.getInt("companyId"))), rs.getInt("quantityPurchased")));
+            }
+        }catch(Exception e){
+            Log.e(TAG, "getUsersStockInGame: ", e);
+        }
+        return myStocks;
+    }
+
+    private String getCompanySymbol(int companyId) {
+        String query = "select companySymbol from [Company] where companyId ="+companyId;
+        String symbol ="";
+        try{
+            Statement stat = connection.createStatement();
+            ResultSet rs = stat.executeQuery(query);
+            if(rs.next()){
+                symbol = rs.getString("companySymbol");
+            }
+        }catch(Exception e){
+            Log.e(TAG, "getCompanySymbol: ", e);
+        }
+        return symbol;
+    }
+
+    private String getCompanyName(int companyId) {
+        String query = "select companyName from [Company] where companyId ="+companyId;
+        String name ="";
+        try{
+            Statement stat = connection.createStatement();
+            ResultSet rs = stat.executeQuery(query);
+            if(rs.next()){
+                name = rs.getString("companyName");
+            }
+        }catch(Exception e){
+            Log.e(TAG, "getCompanyName: ", e);
+        }
+        return name;
     }
 }

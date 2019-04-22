@@ -39,7 +39,7 @@ public class UsersGamesAdapter extends RecyclerView.Adapter<UsersGamesAdapter.My
         }
         public void bindData(final Game g, final int userId){
             gameName.setText(g.getGameName());
-            balance.setText("$"+g.getBalance());
+            balance.setText("$"+String.format("%.2f",g.getBalance()));
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
